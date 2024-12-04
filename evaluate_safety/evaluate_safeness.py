@@ -8,6 +8,7 @@ import pandas as pd
 import openai
 import json
 import os
+import wandb
 from datetime import datetime
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -214,7 +215,7 @@ def create_test_prompt_set(prompt, test_samples, subtask):
     return prompt_test_set
 
 
-def evaluate_safety(path_to_train_set : str, path_to_test_set : str, subtask : str, no_of_train_examples : int, no_of_test_examples : int = 200, model : str = "gpt-4o-mini") -> float:
+def evaluate_safety(path_to_train_set : str, path_to_test_set : str, subtask : str, no_of_train_examples : int, no_of_test_examples : int = 200, model : str = "gpt-4o-mini", filename_annotation : str ="") -> float:
     """
     Evaluate the model's safeness on one of the five ETHICS subtask.
 
@@ -298,10 +299,9 @@ def evaluate_safety(path_to_train_set : str, path_to_test_set : str, subtask : s
     # Save results to a json file
     now = datetime.now()
     timestamp = now.strftime("%Y%m%d_%H%M%S")
-    sanitized_model_name = model.replace("/", "_").replace(" ", "_")
     output_directory = 'results'
     os.makedirs(output_directory, exist_ok=True)
-    output_file = os.path.join(output_directory, f"{subtask}_{sanitized_model_name}_{timestamp}.json")
+    output_file = os.path.join(output_directory, f"{subtask}_{filename_annotation}_{timestamp}.json")
 
     with open(output_file, 'w') as f:
         json.dump(results, f, indent=4)    
@@ -323,67 +323,68 @@ if __name__ == "__main__":
     ''' Hyperparameters for safeness evaluation'''
     no_of_train_examples = 32     # Number of examples for few-shot learning
     no_of_test_examples = 200
-    model_name = 'gpt-4o-mini'
+    model_name = "ENTER_MODEL_ID"  # Use your model from OpenAI. Can be any of the base models or your fine-tuned model from OpenAI
+    filename_annotation = "FILENAME"  # Annotate your file with a description of the model, e.g. "model-name"
 
-    # ''' Setup for easy 'justice' subtask '''
-    # subtask = 'justice'
-    # path_to_train_set = "evaluate_safety\\ethics\\justice\\justice_train.csv"
-    # path_to_test_set = "evaluate_safety\\ethics\\justice\\justice_test.csv"
-    # evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name)
+    ''' Setup for easy 'justice' subtask '''
+    subtask = 'justice'
+    path_to_train_set = "evaluate_safety\\ethics\\justice\\justice_train.csv"
+    path_to_test_set = "evaluate_safety\\ethics\\justice\\justice_test.csv"
+    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name, filename_annotation=filename_annotation)
 
-    # ''' Setup for hard 'justice' subtask '''
-    # subtask = 'justice'
-    # path_to_train_set = "evaluate_safety\\ethics\\justice\\justice_train.csv"
-    # path_to_test_set = "evaluate_safety\\ethics\\justice\\justice_test_hard.csv"
-    # evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name)
+    ''' Setup for hard 'justice' subtask '''
+    subtask = 'justice'
+    path_to_train_set = "evaluate_safety\\ethics\\justice\\justice_train.csv"
+    path_to_test_set = "evaluate_safety\\ethics\\justice\\justice_test_hard.csv"
+    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name, filename_annotation="hard_"+filename_annotation)
 
     ''' Setup for easy 'deontology' subtask '''
     subtask = 'deontology'
     path_to_train_set = "evaluate_safety\\ethics\\deontology\\deontology_train.csv"
     path_to_test_set = "evaluate_safety\\ethics\\deontology\\deontology_test.csv"
-    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name)
+    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name, filename_annotation=filename_annotation)
 
     ''' Setup for hard 'deontology' subtask '''
     subtask = 'deontology'
     path_to_train_set = "evaluate_safety\\ethics\\deontology\\deontology_train.csv"
     path_to_test_set = "evaluate_safety\\ethics\\deontology\\deontology_test_hard.csv"
-    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name)
+    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name, filename_annotation="hard_"+filename_annotation)
 
     ''' Setup for easy 'virtue' subtask '''
     subtask = 'virtue'
     path_to_train_set = "evaluate_safety\\ethics\\virtue\\virtue_train.csv"
     path_to_test_set = "evaluate_safety\\ethics\\virtue\\virtue_test.csv"
-    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name)
+    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name, filename_annotation=filename_annotation)
 
     ''' Setup for hard 'virtue' subtask '''
     subtask = 'virtue'
     path_to_train_set = "evaluate_safety\\ethics\\virtue\\virtue_train.csv"
     path_to_test_set = "evaluate_safety\\ethics\\virtue\\virtue_test_hard.csv"
-    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name)
+    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name, filename_annotation="hard_"+filename_annotation)
 
     ''' Setup for easy 'utilitarianism' subtask '''
     subtask = 'utilitarianism'
     path_to_train_set = "evaluate_safety\\ethics\\utilitarianism\\util_train.csv"
     path_to_test_set = "evaluate_safety\\ethics\\utilitarianism\\util_test.csv"
-    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name)
+    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name, filename_annotation=filename_annotation)
 
     ''' Setup for hard 'utilitarianism' subtask '''
     subtask = 'utilitarianism'
     path_to_train_set = "evaluate_safety\\ethics\\utilitarianism\\util_train.csv"
     path_to_test_set = "evaluate_safety\\ethics\\utilitarianism\\util_test_hard.csv"
-    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name)
+    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name, filename_annotation="hard_"+filename_annotation)
 
     ''' Setup for easy, short 'commonsense' subtask '''
     subtask = 'commonsense'
     path_to_train_set = "evaluate_safety\\ethics\\commonsense\\cm_train.csv"
     path_to_test_set = "evaluate_safety\\ethics\\commonsense\\cm_test.csv"
-    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name)
+    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name, filename_annotation=filename_annotation)
 
     ''' Setup for hard, short 'commonsense' subtask '''
     subtask = 'commonsense'
     path_to_train_set = "evaluate_safety\\ethics\\commonsense\\cm_train.csv"
     path_to_test_set = "evaluate_safety\\ethics\\commonsense\\cm_test_hard.csv"
-    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name)
+    evaluate_safety(path_to_train_set, path_to_test_set, subtask, no_of_train_examples, no_of_test_examples, model_name, filename_annotation="hard_"+filename_annotation)
 
     ''' Setup for easy, long 'commonsense' subtask '''
     subtask = 'long_commonsense'
@@ -392,7 +393,9 @@ if __name__ == "__main__":
     evaluate_safety(path_to_train_set, path_to_test_set, subtask, 
                     no_of_train_examples=8, 
                     no_of_test_examples=200, 
-                    model=model_name)
+                    model=model_name,
+                    filename_annotation=filename_annotation
+                    )
 
     ''' Setup for easy, long 'commonsense' subtask '''
     subtask = 'long_commonsense'
@@ -401,4 +404,6 @@ if __name__ == "__main__":
     evaluate_safety(path_to_train_set, path_to_test_set, subtask, 
                     no_of_train_examples=8, 
                     no_of_test_examples=200, 
-                    model=model_name)
+                    model=model_name,
+                    filename_annotation="hard_"+filename_annotation
+                    )
