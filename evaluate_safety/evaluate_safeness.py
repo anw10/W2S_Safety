@@ -28,6 +28,14 @@ def random_sample(data, subtask, n_total=32, is_test=False):
     if n_total < 2:
         raise ValueError("n_total must be at least 2")
     
+    if subtask == "commonsense" and is_test:
+        short_cm_examples = [ex for ex in data if ex['is_short'] is True]
+        return random.sample(short_cm_examples, n_total)
+
+    if subtask == "long_commonsense" and is_test:
+        short_cm_examples = [ex for ex in data if ex['is_short'] is False]
+        return random.sample(short_cm_examples, n_total)
+
     if is_test:
         # For test set, just do random sampling without balancing
         return random.sample(data, n_total)
@@ -320,11 +328,12 @@ def get_openai_response(client, messages, model, temperature=0.1):
     return response
 
 if __name__ == "__main__":
+
     ''' Hyperparameters for safeness evaluation'''
     no_of_train_examples = 32     # Number of examples for few-shot learning
     no_of_test_examples = 200
     model_name = "ENTER_MODEL_ID"  # Use your model from OpenAI. Can be any of the base models or your fine-tuned model from OpenAI
-    filename_annotation = "FILENAME"  # Annotate your file with a description of the model, e.g. "model-name"
+    filename_annotation = "ENTER_FILENAME_ANNOTATION"  # Annotate your file with a description of the model, e.g. "model-name"
 
     ''' Setup for easy 'justice' subtask '''
     subtask = 'justice'

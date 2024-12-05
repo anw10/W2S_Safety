@@ -91,7 +91,7 @@ if __name__ == "__main__":
     ''' Parse json and analyze results '''
 
     # Specify the path to the folder with the model responses. Use the results/ folder.
-    path_to_file = "PATH_TO_FOLDER_WITH_JSON_FILES"
+    path_to_file = "PATH_TO_FILE"
 
     for root, _, files in os.walk(path_to_file):
         for file in files:
